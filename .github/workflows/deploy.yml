@@ -31,7 +31,9 @@ jobs:
           cache: 'npm'
           
       - name: Install dependencies
-        run: npm ci
+        run: |
+          npm ci
+          npm list vite || npm install vite
         
       - name: Build
         run: npm run build
@@ -40,11 +42,13 @@ jobs:
           NODE_ENV: production
           BASE_URL: ${{ steps.deployment.outputs.page_url }}
         
-      - name: Verify dist directory
+      - name: Verify build output
         run: |
+          echo "Current directory:"
           pwd
+          echo "Directory contents:"
           ls -la
-          echo "Checking dist directory:"
+          echo "Dist directory contents:"
           ls -la dist || echo "dist directory not found"
           
       - name: Setup Pages
@@ -53,7 +57,7 @@ jobs:
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          path: 'dist'
+          path: dist
           
       - name: Deploy to GitHub Pages
         id: deployment
