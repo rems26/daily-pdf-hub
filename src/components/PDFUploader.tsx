@@ -4,13 +4,16 @@ import { useToast } from "@/components/ui/use-toast";
 
 export const PDFUploader = () => {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [pdfUrl, setPdfUrl] = useState<string | null>(null);
   const { toast } = useToast();
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file && file.type === "application/pdf") {
-      console.log("Fichier PDF sélectionné:", file.name);
       setSelectedFile(file);
+      const url = URL.createObjectURL(file);
+      setPdfUrl(url);
+      console.log("PDF URL créée:", url);
     } else {
       toast({
         title: "Erreur",
@@ -18,46 +21,6 @@ export const PDFUploader = () => {
         variant: "destructive",
       });
     }
-  };
-
-  const handleUpload = async () => {
-    if (!selectedFile) return;
-
-    const reader = new FileReader();
-    reader.onload = (e) => {
-      const base64PDF = e.target?.result as string;
-      console.log("PDF converti en base64, premiers caractères:", base64PDF.substring(0, 50));
-      
-      try {
-        localStorage.setItem('currentPDF', base64PDF);
-        localStorage.setItem('pdfLastUpdate', new Date().toISOString());
-        console.log("PDF sauvegardé dans le localStorage");
-        
-        toast({
-          title: "Succès",
-          description: "Le PDF a été mis à jour avec succès",
-        });
-        setSelectedFile(null);
-      } catch (error) {
-        console.error("Erreur lors de la sauvegarde dans le localStorage:", error);
-        toast({
-          title: "Erreur",
-          description: "Erreur lors de la sauvegarde du PDF",
-          variant: "destructive",
-        });
-      }
-    };
-
-    reader.onerror = (error) => {
-      console.error("Erreur lors de la lecture du fichier:", error);
-      toast({
-        title: "Erreur",
-        description: "Erreur lors de la lecture du fichier",
-        variant: "destructive",
-      });
-    };
-
-    reader.readAsDataURL(selectedFile);
   };
 
   return (
@@ -83,12 +46,14 @@ export const PDFUploader = () => {
           </div>
         </label>
       </div>
-      {selectedFile && (
-        <div className="flex flex-col gap-2">
-          <p className="text-sm text-gray-600">
-            Fichier sélectionné : {selectedFile.name}
-          </p>
-          <Button onClick={handleUpload}>Mettre à jour le PDF</Button>
+      
+      {pdfUrl && (
+        <div className="mt-8 h-screen">
+          <iframe
+            src={pdfUrl}
+            className="w-full h-full border-none"
+            title="PDF Viewer"
+          />
         </div>
       )}
     </div>
