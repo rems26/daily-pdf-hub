@@ -6,11 +6,19 @@ import { PDFViewer } from "@/components/PDFViewer";
 
 const Index = () => {
   const [isAdmin, setIsAdmin] = useState(false);
-  const [showViewer, setShowViewer] = useState(true);
+  const [showViewer, setShowViewer] = useState(false);
 
   const handleLogout = () => {
     setIsAdmin(false);
     setShowViewer(true);
+  };
+
+  const handleViewerClick = () => {
+    setShowViewer(true);
+  };
+
+  const handleAdminClick = () => {
+    setShowViewer(false);
   };
 
   if (!isAdmin && !showViewer) {
@@ -18,9 +26,21 @@ const Index = () => {
       <div className="min-h-screen flex flex-col items-center justify-center p-4">
         <div className="text-center mb-8">
           <h1 className="text-3xl font-bold text-primary mb-2">DailyDocView</h1>
-          <p className="text-gray-600">Portail administrateur</p>
+          <p className="text-gray-600 mb-4">Choisissez votre mode d'accès</p>
+          <div className="space-x-4">
+            <Button onClick={handleViewerClick} variant="outline">
+              Consulter le document
+            </Button>
+            <Button onClick={handleAdminClick} variant="default">
+              Administration
+            </Button>
+          </div>
         </div>
-        <LoginForm onLogin={setIsAdmin} />
+        {!showViewer && (
+          <div className="mt-8">
+            <LoginForm onLogin={setIsAdmin} />
+          </div>
+        )}
       </div>
     );
   }
