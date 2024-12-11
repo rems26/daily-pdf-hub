@@ -10,9 +10,11 @@ export const PDFViewer = () => {
     const lastUpdateDate = localStorage.getItem('pdfLastUpdate');
     
     if (storedPDF) {
+      console.log("PDF trouvé dans le localStorage");
       setPdfUrl(storedPDF);
       setLastUpdate(lastUpdateDate);
     } else {
+      console.log("Aucun PDF trouvé dans le localStorage");
       setError("Aucun document n'est disponible pour le moment. Veuillez contacter l'administrateur.");
     }
   }, []);
@@ -35,11 +37,20 @@ export const PDFViewer = () => {
         </div>
       )}
       {pdfUrl ? (
-        <iframe
-          src={pdfUrl}
+        <object
+          data={pdfUrl}
+          type="application/pdf"
           className="w-full h-full"
-          title="PDF Viewer"
-        />
+        >
+          <iframe
+            src={pdfUrl}
+            className="w-full h-full"
+            title="PDF Viewer"
+          >
+            <p>Votre navigateur ne peut pas afficher le PDF directement. 
+            <a href={pdfUrl} download="document.pdf">Cliquez ici pour le télécharger</a>.</p>
+          </iframe>
+        </object>
       ) : (
         <div className="flex items-center justify-center h-full">
           <p className="text-gray-600">Chargement du document...</p>
