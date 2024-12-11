@@ -8,6 +8,11 @@ const Index = () => {
   const [isAdmin, setIsAdmin] = useState(false);
   const [showViewer, setShowViewer] = useState(true);
 
+  const handleLogout = () => {
+    setIsAdmin(false);
+    setShowViewer(true);
+  };
+
   if (!isAdmin && !showViewer) {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center p-4">
@@ -28,7 +33,7 @@ const Index = () => {
             <h1 className="text-2xl font-bold text-primary">
               Console d'administration
             </h1>
-            <Button onClick={() => setIsAdmin(false)} variant="outline">
+            <Button onClick={handleLogout} variant="outline">
               Déconnexion
             </Button>
           </div>
