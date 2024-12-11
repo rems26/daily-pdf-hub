@@ -32,24 +32,31 @@ jobs:
           
       - name: Install dependencies
         run: |
-          npm ci
-          npm list vite || npm install vite
+          rm -rf node_modules
+          npm install
+          npm install -g vite
         
       - name: Build
-        run: npm run build
+        run: |
+          npm run build
+          ls -la dist || echo "dist directory not found after build"
         env:
           CI: false
           NODE_ENV: production
           BASE_URL: ${{ steps.deployment.outputs.page_url }}
         
-      - name: Verify build output
+      - name: Debug information
         run: |
+          echo "Node version:"
+          node --version
+          echo "NPM version:"
+          npm --version
           echo "Current directory:"
           pwd
           echo "Directory contents:"
           ls -la
-          echo "Dist directory contents:"
-          ls -la dist || echo "dist directory not found"
+          echo "Package.json contents:"
+          cat package.json
           
       - name: Setup Pages
         uses: actions/configure-pages@v4
@@ -57,7 +64,7 @@ jobs:
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          path: dist
+          path: './dist'
           
       - name: Deploy to GitHub Pages
         id: deployment
