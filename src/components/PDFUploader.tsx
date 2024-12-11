@@ -22,12 +22,19 @@ export const PDFUploader = () => {
   const handleUpload = async () => {
     if (!selectedFile) return;
 
-    // Simulation d'upload - Dans une vraie application, envoyez le fichier à un serveur
-    toast({
-      title: "Succès",
-      description: "Le PDF a été mis à jour avec succès",
-    });
-    setSelectedFile(null);
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      const base64PDF = e.target?.result as string;
+      localStorage.setItem('currentPDF', base64PDF);
+      localStorage.setItem('pdfLastUpdate', new Date().toISOString());
+      
+      toast({
+        title: "Succès",
+        description: "Le PDF a été mis à jour avec succès",
+      });
+      setSelectedFile(null);
+    };
+    reader.readAsDataURL(selectedFile);
   };
 
   return (
