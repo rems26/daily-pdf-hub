@@ -1,9 +1,9 @@
-import { PDFViewer } from "@/components/PDFViewer";
+import { PDFUploader } from "@/components/PDFUploader";
 
 const Index = () => {
   return (
     <div className="min-h-screen">
-      <PDFViewer />
+      <PDFUploader />
     </div>
   );
 };
