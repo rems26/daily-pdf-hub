@@ -32,7 +32,6 @@ const Index = () => {
     });
   };
 
-  // Vérifier si on arrive via un lien de partage
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     if (params.get('view') === 'pdf') {
@@ -40,7 +39,24 @@ const Index = () => {
     }
   }, []);
 
-  if (!isAdmin && !showViewer) {
+  // Si on arrive via le lien de partage ou si on clique sur "Consulter"
+  if (showViewer) {
+    return (
+      <div className="min-h-screen">
+        <PDFViewer />
+        {isAdmin && (
+          <div className="fixed top-4 right-4">
+            <Button onClick={handleLogout} variant="outline">
+              Retour à l'administration
+            </Button>
+          </div>
+        )}
+      </div>
+    );
+  }
+
+  // Page d'accueil avec choix entre consultation et administration
+  if (!isAdmin) {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center p-4">
         <div className="text-center mb-8">
@@ -64,30 +80,27 @@ const Index = () => {
     );
   }
 
-  if (isAdmin) {
-    return (
-      <div className="min-h-screen p-4">
-        <div className="max-w-4xl mx-auto">
-          <div className="flex justify-between items-center mb-8">
-            <h1 className="text-2xl font-bold text-primary">
-              Console d'administration
-            </h1>
-            <div className="space-x-2">
-              <Button onClick={handleShare} variant="outline">
-                Partager le lien
-              </Button>
-              <Button onClick={handleLogout} variant="outline">
-                Déconnexion
-              </Button>
-            </div>
+  // Vue administrateur
+  return (
+    <div className="min-h-screen p-4">
+      <div className="max-w-4xl mx-auto">
+        <div className="flex justify-between items-center mb-8">
+          <h1 className="text-2xl font-bold text-primary">
+            Console d'administration
+          </h1>
+          <div className="space-x-2">
+            <Button onClick={handleShare} variant="outline">
+              Partager le lien
+            </Button>
+            <Button onClick={handleLogout} variant="outline">
+              Déconnexion
+            </Button>
           </div>
-          <PDFUploader />
         </div>
+        <PDFUploader />
       </div>
-    );
-  }
-
-  return <PDFViewer />;
+    </div>
+  );
 };
 
 export default Index;
