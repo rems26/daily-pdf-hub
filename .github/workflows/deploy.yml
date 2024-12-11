@@ -40,21 +40,20 @@ jobs:
           NODE_ENV: production
           BASE_URL: ${{ steps.deployment.outputs.page_url }}
         
-      - name: Debug dist directory
+      - name: Verify dist directory
         run: |
           pwd
           ls -la
+          echo "Checking dist directory:"
           ls -la dist || echo "dist directory not found"
-        
+          
       - name: Setup Pages
         uses: actions/configure-pages@v4
-        with:
-          enablement: true
         
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          path: './dist'
+          path: 'dist'
           
       - name: Deploy to GitHub Pages
         id: deployment
