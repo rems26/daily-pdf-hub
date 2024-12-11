@@ -11,29 +11,22 @@ export const PDFViewer = () => {
     
     if (storedPDF) {
       console.log("PDF trouvé dans le localStorage");
-      // Convertir le base64 en blob URL
-      const base64Response = storedPDF.split(',')[1];
-      const binaryString = window.atob(base64Response);
-      const bytes = new Uint8Array(binaryString.length);
-      const len = bytes.length;
-      for (let i = 0; i < len; i++) {
-          bytes[i] = binaryString.charCodeAt(i);
+      try {
+        // Vérifier que le PDF commence bien par "data:application/pdf"
+        if (!storedPDF.startsWith('data:application/pdf')) {
+          throw new Error('Format de PDF invalide');
+        }
+        
+        setPdfUrl(storedPDF);
+        setLastUpdate(lastUpdateDate);
+      } catch (error) {
+        console.error("Erreur lors du chargement du PDF:", error);
+        setError("Erreur lors du chargement du PDF. Format invalide.");
       }
-      const blob = new Blob([bytes], { type: 'application/pdf' });
-      const url = URL.createObjectURL(blob);
-      setPdfUrl(url);
-      setLastUpdate(lastUpdateDate);
     } else {
       console.log("Aucun PDF trouvé dans le localStorage");
       setError("Aucun document n'est disponible pour le moment. Veuillez contacter l'administrateur.");
     }
-
-    // Nettoyer l'URL du blob lors du démontage du composant
-    return () => {
-      if (pdfUrl) {
-        URL.revokeObjectURL(pdfUrl);
-      }
-    };
   }, []);
 
   if (error) {
@@ -54,10 +47,10 @@ export const PDFViewer = () => {
         </div>
       )}
       {pdfUrl ? (
-        <embed
+        <iframe
           src={pdfUrl}
-          type="application/pdf"
-          className="w-full h-full"
+          className="w-full h-full border-none"
+          title="PDF Viewer"
         />
       ) : (
         <div className="flex items-center justify-center h-full">
