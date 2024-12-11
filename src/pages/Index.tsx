@@ -3,10 +3,12 @@ import { Button } from "@/components/ui/button";
 import { LoginForm } from "@/components/LoginForm";
 import { PDFUploader } from "@/components/PDFUploader";
 import { PDFViewer } from "@/components/PDFViewer";
+import { useToast } from "@/components/ui/use-toast";
 
 const Index = () => {
   const [isAdmin, setIsAdmin] = useState(false);
   const [showViewer, setShowViewer] = useState(false);
+  const { toast } = useToast();
 
   const handleLogout = () => {
     setIsAdmin(false);
@@ -20,6 +22,23 @@ const Index = () => {
   const handleAdminClick = () => {
     setShowViewer(false);
   };
+
+  const handleShare = () => {
+    const shareUrl = `${window.location.origin}?view=pdf`;
+    navigator.clipboard.writeText(shareUrl);
+    toast({
+      title: "Lien copié !",
+      description: "Le lien a été copié dans votre presse-papiers.",
+    });
+  };
+
+  // Vérifier si on arrive via un lien de partage
+  useState(() => {
+    const params = new URLSearchParams(window.location.search);
+    if (params.get('view') === 'pdf') {
+      setShowViewer(true);
+    }
+  }, []);
 
   if (!isAdmin && !showViewer) {
     return (
@@ -53,9 +72,14 @@ const Index = () => {
             <h1 className="text-2xl font-bold text-primary">
               Console d'administration
             </h1>
-            <Button onClick={handleLogout} variant="outline">
-              Déconnexion
-            </Button>
+            <div className="space-x-2">
+              <Button onClick={handleShare} variant="outline">
+                Partager le lien
+              </Button>
+              <Button onClick={handleLogout} variant="outline">
+                Déconnexion
+              </Button>
+            </div>
           </div>
           <PDFUploader />
         </div>
