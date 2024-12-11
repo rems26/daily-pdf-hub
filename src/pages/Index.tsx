@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { LoginForm } from "@/components/LoginForm";
 import { PDFUploader } from "@/components/PDFUploader";
@@ -33,7 +33,7 @@ const Index = () => {
   };
 
   // Vérifier si on arrive via un lien de partage
-  useState(() => {
+  useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     if (params.get('view') === 'pdf') {
       setShowViewer(true);
