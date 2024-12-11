@@ -11,12 +11,29 @@ export const PDFViewer = () => {
     
     if (storedPDF) {
       console.log("PDF trouvé dans le localStorage");
-      setPdfUrl(storedPDF);
+      // Convertir le base64 en blob URL
+      const base64Response = storedPDF.split(',')[1];
+      const binaryString = window.atob(base64Response);
+      const bytes = new Uint8Array(binaryString.length);
+      const len = bytes.length;
+      for (let i = 0; i < len; i++) {
+          bytes[i] = binaryString.charCodeAt(i);
+      }
+      const blob = new Blob([bytes], { type: 'application/pdf' });
+      const url = URL.createObjectURL(blob);
+      setPdfUrl(url);
       setLastUpdate(lastUpdateDate);
     } else {
       console.log("Aucun PDF trouvé dans le localStorage");
       setError("Aucun document n'est disponible pour le moment. Veuillez contacter l'administrateur.");
     }
+
+    // Nettoyer l'URL du blob lors du démontage du composant
+    return () => {
+      if (pdfUrl) {
+        URL.revokeObjectURL(pdfUrl);
+      }
+    };
   }, []);
 
   if (error) {
@@ -37,20 +54,11 @@ export const PDFViewer = () => {
         </div>
       )}
       {pdfUrl ? (
-        <object
-          data={pdfUrl}
+        <embed
+          src={pdfUrl}
           type="application/pdf"
           className="w-full h-full"
-        >
-          <iframe
-            src={pdfUrl}
-            className="w-full h-full"
-            title="PDF Viewer"
-          >
-            <p>Votre navigateur ne peut pas afficher le PDF directement. 
-            <a href={pdfUrl} download="document.pdf">Cliquez ici pour le télécharger</a>.</p>
-          </iframe>
-        </object>
+        />
       ) : (
         <div className="flex items-center justify-center h-full">
           <p className="text-gray-600">Chargement du document...</p>
