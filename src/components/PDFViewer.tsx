@@ -12,7 +12,6 @@ export const PDFViewer = () => {
     if (storedPDF) {
       console.log("PDF trouvé dans le localStorage");
       try {
-        // Vérifier que le PDF commence bien par "data:application/pdf"
         if (!storedPDF.startsWith('data:application/pdf')) {
           throw new Error('Format de PDF invalide');
         }
@@ -38,7 +37,7 @@ export const PDFViewer = () => {
   }
 
   return (
-    <div className="flex flex-col h-screen">
+    <div className="flex flex-col h-screen w-full fixed top-0 left-0">
       {lastUpdate && (
         <div className="p-2 bg-gray-100">
           <p className="text-sm text-gray-600">
@@ -49,7 +48,7 @@ export const PDFViewer = () => {
       {pdfUrl ? (
         <iframe
           src={pdfUrl}
-          className="w-full h-full border-none"
+          className="w-full flex-grow border-none"
           title="PDF Viewer"
         />
       ) : (
