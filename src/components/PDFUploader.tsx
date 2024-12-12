@@ -29,14 +29,14 @@ export const PDFUploader = () => {
     }
   };
 
-  const handleCopyLink = () => {
+  const handleViewPDF = () => {
     const timestamp = Date.now();
     const viewUrl = `${window.location.origin}/pdf/${timestamp}`;
-    navigator.clipboard.writeText(viewUrl);
     window.open(viewUrl, '_blank');
+    navigator.clipboard.writeText(viewUrl);
     toast({
       title: "Succès",
-      description: "Lien copié dans le presse-papier et PDF ouvert dans un nouvel onglet",
+      description: "PDF ouvert dans un nouvel onglet et lien copié dans le presse-papier",
     });
   };
 
@@ -66,8 +66,8 @@ export const PDFUploader = () => {
       
       {pdfUrl && (
         <div className="flex justify-end mb-4">
-          <Button onClick={handleCopyLink} variant="outline" className="gap-2">
-            Voir et partager le PDF
+          <Button onClick={handleViewPDF} variant="outline" className="gap-2">
+            Voir le PDF
           </Button>
         </div>
       )}
