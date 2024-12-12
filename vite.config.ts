@@ -10,7 +10,14 @@ export default defineConfig({
     },
   },
   server: {
-    historyApiFallback: true,
+    port: 8080,
+    proxy: {
+      '/pdf': {
+        target: 'http://localhost:8080',
+        changeOrigin: true,
+        rewrite: (path) => path
+      }
+    }
   },
   build: {
     rollupOptions: {
