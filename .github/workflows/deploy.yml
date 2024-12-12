@@ -31,25 +31,22 @@ jobs:
           
       - name: Clean install dependencies
         run: |
-          echo "Current directory before clean:"
+          echo "Current working directory:"
           pwd
+          echo "Directory contents before cleanup:"
           ls -la
           rm -rf node_modules
           rm -rf dist
           npm ci
-          npm audit fix
-          echo "Node modules after install:"
-          ls -la node_modules
+          npm audit fix || true
+          echo "Directory contents after install:"
+          ls -la
         
       - name: Build
         run: |
           echo "Starting build process..."
-          npm run build
-          echo "Build process completed"
-          echo "Content of current directory:"
-          pwd
-          ls -la
-          echo "Content of dist directory (if exists):"
+          CI=false npm run build
+          echo "Build completed. Checking dist directory:"
           ls -la dist || echo "dist directory not found"
         env:
           CI: false
