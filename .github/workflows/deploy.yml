@@ -38,18 +38,16 @@ jobs:
           rm -rf node_modules
           rm -rf dist
           npm ci
-          npm audit fix || true
           echo "Directory contents after install:"
           ls -la
         
       - name: Build
         run: |
           echo "Starting build process..."
-          CI=false npm run build
+          npm run build
           echo "Build completed. Checking dist directory:"
           ls -la dist || echo "dist directory not found"
         env:
-          CI: false
           NODE_ENV: production
         
       - name: Setup Pages
