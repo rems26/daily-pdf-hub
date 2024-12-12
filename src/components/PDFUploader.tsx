@@ -1,11 +1,12 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/components/ui/use-toast";
+import { useNavigate } from "react-router-dom";
 
 export const PDFUploader = () => {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
-  const [pdfUrl, setPdfUrl] = useState<string | null>(null);
   const { toast } = useToast();
+  const navigate = useNavigate();
 
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -16,8 +17,11 @@ export const PDFUploader = () => {
         const base64 = reader.result as string;
         localStorage.setItem('currentPDF', base64);
         localStorage.setItem('pdfLastUpdate', new Date().toISOString());
-        setPdfUrl(base64);
         console.log("PDF sauvegardé dans le localStorage");
+        toast({
+          title: "Succès",
+          description: "PDF uploadé avec succès",
+        });
       };
       reader.readAsDataURL(file);
     } else {
@@ -31,12 +35,7 @@ export const PDFUploader = () => {
 
   const handleViewPDF = () => {
     const timestamp = Date.now();
-    const pdfUrl = `/pdf/${timestamp}`;
-    window.open(pdfUrl, '_blank');
-    toast({
-      title: "Succès",
-      description: "PDF ouvert dans un nouvel onglet",
-    });
+    navigate(`/pdf/${timestamp}`);
   };
 
   return (
@@ -63,7 +62,7 @@ export const PDFUploader = () => {
         </label>
       </div>
       
-      {pdfUrl && (
+      {selectedFile && (
         <div className="flex justify-end mb-4">
           <Button onClick={handleViewPDF} variant="outline" className="gap-2">
             Voir le PDF
