@@ -46,7 +46,7 @@ jobs:
           echo "Starting build process..."
           npm run build
           echo "Build completed. Checking dist directory:"
-          ls -la dist || echo "dist directory not found"
+          ls -la dist
         env:
           NODE_ENV: production
         
