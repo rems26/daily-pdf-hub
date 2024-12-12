@@ -36,6 +36,15 @@ jobs:
         run: npm run build
         env:
           NODE_ENV: production
+          
+      - name: Debug directory structure
+        run: |
+          echo "Current working directory:"
+          pwd
+          echo "Directory contents:"
+          ls -la
+          echo "Dist directory contents (if exists):"
+          ls -la dist || echo "dist directory not found"
         
       - name: Setup Pages
         uses: actions/configure-pages@v4
