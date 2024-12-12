@@ -1,13 +1,11 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/components/ui/use-toast";
-import { useNavigate } from "react-router-dom";
 
 export const PDFUploader = () => {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [pdfUrl, setPdfUrl] = useState<string | null>(null);
   const { toast } = useToast();
-  const navigate = useNavigate();
 
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -33,7 +31,8 @@ export const PDFUploader = () => {
 
   const handleViewPDF = () => {
     const timestamp = Date.now();
-    navigate(`/pdf/${timestamp}`);
+    const pdfUrl = `/pdf/${timestamp}`;
+    window.open(pdfUrl, '_blank');
     toast({
       title: "Succès",
       description: "PDF ouvert dans un nouvel onglet",
