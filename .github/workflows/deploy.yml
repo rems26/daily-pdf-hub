@@ -30,34 +30,21 @@ jobs:
           node-version: 18
           cache: 'npm'
           
-      - name: Install dependencies
+      - name: Clean install dependencies
         run: |
           rm -rf node_modules
-          npm install
-          npm install -g vite
+          rm -rf dist
+          npm ci
         
       - name: Build
         run: |
           npm run build
-          ls -la dist || echo "dist directory not found after build"
+          ls -la
+          ls -la dist || echo "dist directory not found"
         env:
           CI: false
           NODE_ENV: production
-          BASE_URL: ${{ steps.deployment.outputs.page_url }}
         
-      - name: Debug information
-        run: |
-          echo "Node version:"
-          node --version
-          echo "NPM version:"
-          npm --version
-          echo "Current directory:"
-          pwd
-          echo "Directory contents:"
-          ls -la
-          echo "Package.json contents:"
-          cat package.json
-          
       - name: Setup Pages
         uses: actions/configure-pages@v4
         
