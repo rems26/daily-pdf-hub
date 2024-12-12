@@ -31,15 +31,23 @@ jobs:
           
       - name: Clean install dependencies
         run: |
+          echo "Current directory before clean:"
+          pwd
+          ls -la
           rm -rf node_modules
           rm -rf dist
           npm ci
           npm audit fix
+          echo "Node modules after install:"
+          ls -la node_modules
         
       - name: Build
         run: |
+          echo "Starting build process..."
           npm run build
+          echo "Build process completed"
           echo "Content of current directory:"
+          pwd
           ls -la
           echo "Content of dist directory (if exists):"
           ls -la dist || echo "dist directory not found"
