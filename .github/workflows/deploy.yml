@@ -45,6 +45,10 @@ jobs:
           ls -la
           echo "Dist directory contents (if exists):"
           ls -la dist || echo "dist directory not found"
+          
+      # Create .nojekyll file to disable Jekyll processing
+      - name: Create .nojekyll file
+        run: touch dist/.nojekyll
         
       - name: Setup Pages
         uses: actions/configure-pages@v4
