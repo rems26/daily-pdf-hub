@@ -32,10 +32,8 @@ export const PDFUploader = () => {
   const handleCopyLink = () => {
     const timestamp = Date.now();
     const viewUrl = `${window.location.origin}/pdf/${timestamp}`;
-    // Ouvrir dans un nouvel onglet
-    window.open(viewUrl, '_blank');
-    // Copier le lien
     navigator.clipboard.writeText(viewUrl);
+    window.open(viewUrl, '_blank');
     toast({
       title: "Succès",
       description: "Lien copié dans le presse-papier et PDF ouvert dans un nouvel onglet",
@@ -67,11 +65,20 @@ export const PDFUploader = () => {
       </div>
       
       {pdfUrl && (
-        <div className="flex justify-end mb-4">
-          <Button onClick={handleCopyLink} variant="outline" className="gap-2">
-            Voir et partager le PDF
-          </Button>
-        </div>
+        <>
+          <div className="flex justify-end mb-4">
+            <Button onClick={handleCopyLink} variant="outline" className="gap-2">
+              Voir et partager le PDF
+            </Button>
+          </div>
+          <div className="w-full h-[600px] border rounded">
+            <iframe
+              src={pdfUrl}
+              className="w-full h-full border-none"
+              title="PDF Preview"
+            />
+          </div>
+        </>
       )}
     </div>
   );
