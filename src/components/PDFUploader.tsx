@@ -65,20 +65,11 @@ export const PDFUploader = () => {
       </div>
       
       {pdfUrl && (
-        <>
-          <div className="flex justify-end mb-4">
-            <Button onClick={handleCopyLink} variant="outline" className="gap-2">
-              Voir et partager le PDF
-            </Button>
-          </div>
-          <div className="w-full h-[600px] border rounded">
-            <iframe
-              src={pdfUrl}
-              className="w-full h-full border-none"
-              title="PDF Preview"
-            />
-          </div>
-        </>
+        <div className="flex justify-end mb-4">
+          <Button onClick={handleCopyLink} variant="outline" className="gap-2">
+            Voir et partager le PDF
+          </Button>
+        </div>
       )}
     </div>
   );
