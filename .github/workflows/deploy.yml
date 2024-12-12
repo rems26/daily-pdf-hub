@@ -24,20 +24,20 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
       
-      - name: Setup Bun
-        uses: oven-sh/setup-bun@v1
+      - name: Setup Node
+        uses: actions/setup-node@v4
         with:
-          bun-version: latest
+          node-version: '20'
           
       - name: Clean install dependencies
         run: |
           rm -rf node_modules
           rm -rf dist
-          bun install
+          npm ci
         
       - name: Build
         run: |
-          bun run build
+          npm run build
           ls -la
           ls -la dist || echo "dist directory not found"
         env:
