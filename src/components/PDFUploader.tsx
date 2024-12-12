@@ -24,13 +24,13 @@ export const PDFUploader = () => {
   };
 
   const handleCopyLink = () => {
-    if (window.location.href) {
-      navigator.clipboard.writeText(window.location.href);
-      toast({
-        title: "Succès",
-        description: "Lien copié dans le presse-papier",
-      });
-    }
+    const timestamp = Date.now();
+    const viewUrl = `${window.location.origin}/pdf/${timestamp}`;
+    navigator.clipboard.writeText(viewUrl);
+    toast({
+      title: "Succès",
+      description: "Lien copié dans le presse-papier",
+    });
   };
 
   return (
@@ -58,20 +58,11 @@ export const PDFUploader = () => {
       </div>
       
       {pdfUrl && (
-        <>
-          <div className="flex justify-end mb-4">
-            <Button onClick={handleCopyLink} variant="outline" className="gap-2">
-              Copier le lien de partage
-            </Button>
-          </div>
-          <div className="mt-8 h-screen">
-            <iframe
-              src={pdfUrl}
-              className="w-full h-full border-none"
-              title="PDF Viewer"
-            />
-          </div>
-        </>
+        <div className="flex justify-end mb-4">
+          <Button onClick={handleCopyLink} variant="outline" className="gap-2">
+            Copier le lien de partage
+          </Button>
+        </div>
       )}
     </div>
   );
