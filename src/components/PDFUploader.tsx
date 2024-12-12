@@ -7,13 +7,19 @@ export const PDFUploader = () => {
   const [pdfUrl, setPdfUrl] = useState<string | null>(null);
   const { toast } = useToast();
 
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file && file.type === "application/pdf") {
       setSelectedFile(file);
-      const url = URL.createObjectURL(file);
-      setPdfUrl(url);
-      console.log("PDF URL créée:", url);
+      const reader = new FileReader();
+      reader.onload = () => {
+        const base64 = reader.result as string;
+        localStorage.setItem('currentPDF', base64);
+        localStorage.setItem('pdfLastUpdate', new Date().toISOString());
+        setPdfUrl(base64);
+        console.log("PDF sauvegardé dans le localStorage");
+      };
+      reader.readAsDataURL(file);
     } else {
       toast({
         title: "Erreur",
