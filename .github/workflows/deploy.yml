@@ -34,11 +34,14 @@ jobs:
           rm -rf node_modules
           rm -rf dist
           npm ci
+          npm audit fix
         
       - name: Build
         run: |
           npm run build
+          echo "Content of current directory:"
           ls -la
+          echo "Content of dist directory (if exists):"
           ls -la dist || echo "dist directory not found"
         env:
           CI: false
