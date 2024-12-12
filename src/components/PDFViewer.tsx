@@ -37,7 +37,7 @@ export const PDFViewer = () => {
   }
 
   return (
-    <div className="flex flex-col h-screen w-full fixed top-0 left-0">
+    <div className="flex flex-col h-screen w-full">
       {lastUpdate && (
         <div className="p-2 bg-gray-100">
           <p className="text-sm text-gray-600">
