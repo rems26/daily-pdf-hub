@@ -35,21 +35,13 @@ jobs:
       - name: Build
         run: npm run build
         
-      - name: Debug directory structure
-        run: |
-          echo "Current directory structure:"
-          pwd
-          ls -la
-          echo "Dist directory contents:"
-          ls -la dist || echo "dist directory not found"
-        
       - name: Setup Pages
         uses: actions/configure-pages@v4
         
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          path: 'dist'
+          path: dist
           
       - name: Deploy to GitHub Pages
         id: deployment
