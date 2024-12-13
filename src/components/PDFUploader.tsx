@@ -15,9 +15,10 @@ export const PDFUploader = () => {
       const reader = new FileReader();
       reader.onload = () => {
         const base64 = reader.result as string;
-        localStorage.setItem('currentPDF', base64);
-        localStorage.setItem('pdfLastUpdate', new Date().toISOString());
-        localStorage.setItem('pdfFileName', file.name);
+        const timestamp = new Date().getTime();
+        const key = `pdf_${timestamp}`;
+        localStorage.setItem(key, base64);
+        localStorage.setItem(`${key}_name`, file.name);
         console.log("PDF sauvegardé dans le localStorage");
         toast({
           title: "Succès",
@@ -36,13 +37,9 @@ export const PDFUploader = () => {
 
   const handleViewPDF = () => {
     if (selectedFile) {
-      const reader = new FileReader();
-      reader.onload = () => {
-        const base64 = encodeURIComponent(reader.result as string);
-        const fileName = encodeURIComponent(selectedFile.name);
-        navigate(`/pdf/${fileName}?data=${base64}`);
-      };
-      reader.readAsDataURL(selectedFile);
+      const timestamp = new Date().getTime();
+      const key = `pdf_${timestamp}`;
+      navigate(`/pdf/${key}`);
     }
   };
 

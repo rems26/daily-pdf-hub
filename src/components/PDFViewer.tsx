@@ -1,31 +1,36 @@
 import { useEffect, useState } from "react";
-import { useLocation } from "react-router-dom";
+import { useParams } from "react-router-dom";
 
 export const PDFViewer = () => {
   const [pdfUrl, setPdfUrl] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [fileName, setFileName] = useState<string | null>(null);
-  const location = useLocation();
+  const { id } = useParams();
 
   useEffect(() => {
-    try {
-      const searchParams = new URLSearchParams(location.search);
-      const pdfData = searchParams.get('data');
+    if (id) {
+      const storedPDF = localStorage.getItem(id);
+      const storedFileName = localStorage.getItem(`${id}_name`);
       
-      if (pdfData) {
-        const decodedPdfData = decodeURIComponent(pdfData);
-        setPdfUrl(decodedPdfData);
-        const pathParts = location.pathname.split('/');
-        const encodedFileName = pathParts[pathParts.length - 1];
-        setFileName(decodeURIComponent(encodedFileName));
+      if (storedPDF) {
+        console.log("PDF trouvé dans le localStorage");
+        try {
+          if (!storedPDF.startsWith('data:application/pdf')) {
+            throw new Error('Format de PDF invalide');
+          }
+          
+          setPdfUrl(storedPDF);
+          setFileName(storedFileName);
+        } catch (error) {
+          console.error("Erreur lors du chargement du PDF:", error);
+          setError("Erreur lors du chargement du PDF. Format invalide.");
+        }
       } else {
-        setError("Aucun document n'est disponible. Le lien semble invalide.");
+        console.log("Aucun PDF trouvé dans le localStorage");
+        setError("Ce document n'est plus disponible ou a expiré.");
       }
-    } catch (err) {
-      console.error("Erreur lors du chargement du PDF:", err);
-      setError("Erreur lors du chargement du PDF. Le lien semble invalide.");
     }
-  }, [location]);
+  }, [id]);
 
   if (error) {
     return (
