@@ -17,6 +17,7 @@ export const PDFUploader = () => {
         const base64 = reader.result as string;
         localStorage.setItem('currentPDF', base64);
         localStorage.setItem('pdfLastUpdate', new Date().toISOString());
+        localStorage.setItem('pdfFileName', file.name);
         console.log("PDF sauvegardé dans le localStorage");
         toast({
           title: "Succès",
@@ -34,8 +35,10 @@ export const PDFUploader = () => {
   };
 
   const handleViewPDF = () => {
-    const timestamp = Date.now();
-    navigate(`/pdf/${timestamp}`);
+    if (selectedFile) {
+      const fileName = encodeURIComponent(selectedFile.name.replace(/\.[^/.]+$/, "")); // Retire l'extension .pdf
+      navigate(`/pdf/${fileName}`);
+    }
   };
 
   return (

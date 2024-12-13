@@ -4,10 +4,12 @@ export const PDFViewer = () => {
   const [pdfUrl, setPdfUrl] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [lastUpdate, setLastUpdate] = useState<string | null>(null);
+  const [fileName, setFileName] = useState<string | null>(null);
 
   useEffect(() => {
     const storedPDF = localStorage.getItem('currentPDF');
     const lastUpdateDate = localStorage.getItem('pdfLastUpdate');
+    const storedFileName = localStorage.getItem('pdfFileName');
     
     if (storedPDF) {
       console.log("PDF trouvé dans le localStorage");
@@ -18,6 +20,7 @@ export const PDFViewer = () => {
         
         setPdfUrl(storedPDF);
         setLastUpdate(lastUpdateDate);
+        setFileName(storedFileName);
       } catch (error) {
         console.error("Erreur lors du chargement du PDF:", error);
         setError("Erreur lors du chargement du PDF. Format invalide.");
@@ -38,13 +41,18 @@ export const PDFViewer = () => {
 
   return (
     <div className="flex flex-col h-screen w-full">
-      {lastUpdate && (
-        <div className="p-2 bg-gray-100">
+      <div className="p-2 bg-gray-100">
+        {fileName && (
+          <p className="text-sm text-gray-600 font-medium">
+            Document : {fileName}
+          </p>
+        )}
+        {lastUpdate && (
           <p className="text-sm text-gray-600">
             Dernière mise à jour : {new Date(lastUpdate).toLocaleString()}
           </p>
-        </div>
-      )}
+        )}
+      </div>
       {pdfUrl ? (
         <iframe
           src={pdfUrl}
