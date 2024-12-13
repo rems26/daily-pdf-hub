@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/components/ui/use-toast";
 import { useNavigate } from "react-router-dom";
+import { compressToEncodedURIComponent } from 'lz-string';
 
 export const PDFUploader = () => {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
@@ -15,10 +16,9 @@ export const PDFUploader = () => {
       const reader = new FileReader();
       reader.onload = () => {
         const base64 = reader.result as string;
-        // Extraire seulement la partie données du base64 (après la virgule)
         const base64Data = base64.split(',')[1];
-        // Créer une URL plus courte
-        const compressedData = compressData(base64Data);
+        // Utiliser lz-string pour une meilleure compression
+        const compressedData = compressToEncodedURIComponent(base64Data);
         navigate(`/pdf/${compressedData}`);
       };
       reader.readAsDataURL(file);
@@ -29,15 +29,6 @@ export const PDFUploader = () => {
         variant: "destructive",
       });
     }
-  };
-
-  // Fonction pour compresser les données
-  const compressData = (data: string) => {
-    // Découper en morceaux plus petits et encoder en base64 URL safe
-    return data
-      .replace(/\+/g, '-')
-      .replace(/\//g, '_')
-      .replace(/=+$/, '');
   };
 
   return (

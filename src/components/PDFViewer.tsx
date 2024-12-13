@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
+import { decompressFromEncodedURIComponent } from 'lz-string';
 
 export const PDFViewer = () => {
   const [pdfUrl, setPdfUrl] = useState<string | null>(null);
@@ -9,8 +10,11 @@ export const PDFViewer = () => {
   useEffect(() => {
     if (id) {
       try {
-        // Décompresser et reconstruire les données base64
-        const decompressedData = decompressData(id);
+        // Utiliser lz-string pour décompresser
+        const decompressedData = decompressFromEncodedURIComponent(id);
+        if (!decompressedData) {
+          throw new Error('Données PDF invalides');
+        }
         const fullBase64 = `data:application/pdf;base64,${decompressedData}`;
         setPdfUrl(fullBase64);
       } catch (error) {
@@ -19,15 +23,6 @@ export const PDFViewer = () => {
       }
     }
   }, [id]);
-
-  // Fonction pour décompresser les données
-  const decompressData = (compressed: string) => {
-    // Reconvertir en base64 standard
-    return compressed
-      .replace(/-/g, '+')
-      .replace(/_/g, '/')
-      .padEnd(compressed.length + (4 - (compressed.length % 4)) % 4, '=');
-  };
 
   if (error) {
     return (
