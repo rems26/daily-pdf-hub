@@ -1,35 +1,31 @@
 import { useEffect, useState } from "react";
+import { useLocation } from "react-router-dom";
 
 export const PDFViewer = () => {
   const [pdfUrl, setPdfUrl] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
-  const [lastUpdate, setLastUpdate] = useState<string | null>(null);
   const [fileName, setFileName] = useState<string | null>(null);
+  const location = useLocation();
 
   useEffect(() => {
-    const storedPDF = localStorage.getItem('currentPDF');
-    const lastUpdateDate = localStorage.getItem('pdfLastUpdate');
-    const storedFileName = localStorage.getItem('pdfFileName');
-    
-    if (storedPDF) {
-      console.log("PDF trouvé dans le localStorage");
-      try {
-        if (!storedPDF.startsWith('data:application/pdf')) {
-          throw new Error('Format de PDF invalide');
-        }
-        
-        setPdfUrl(storedPDF);
-        setLastUpdate(lastUpdateDate);
-        setFileName(storedFileName);
-      } catch (error) {
-        console.error("Erreur lors du chargement du PDF:", error);
-        setError("Erreur lors du chargement du PDF. Format invalide.");
+    try {
+      const searchParams = new URLSearchParams(location.search);
+      const pdfData = searchParams.get('data');
+      
+      if (pdfData) {
+        const decodedPdfData = decodeURIComponent(pdfData);
+        setPdfUrl(decodedPdfData);
+        const pathParts = location.pathname.split('/');
+        const encodedFileName = pathParts[pathParts.length - 1];
+        setFileName(decodeURIComponent(encodedFileName));
+      } else {
+        setError("Aucun document n'est disponible. Le lien semble invalide.");
       }
-    } else {
-      console.log("Aucun PDF trouvé dans le localStorage");
-      setError("Aucun document n'est disponible pour le moment. Veuillez contacter l'administrateur.");
+    } catch (err) {
+      console.error("Erreur lors du chargement du PDF:", err);
+      setError("Erreur lors du chargement du PDF. Le lien semble invalide.");
     }
-  }, []);
+  }, [location]);
 
   if (error) {
     return (
@@ -45,11 +41,6 @@ export const PDFViewer = () => {
         {fileName && (
           <p className="text-sm text-gray-600 font-medium">
             Document : {fileName}
-          </p>
-        )}
-        {lastUpdate && (
-          <p className="text-sm text-gray-600">
-            Dernière mise à jour : {new Date(lastUpdate).toLocaleString()}
           </p>
         )}
       </div>

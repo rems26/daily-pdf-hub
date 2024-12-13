@@ -36,8 +36,13 @@ export const PDFUploader = () => {
 
   const handleViewPDF = () => {
     if (selectedFile) {
-      const fileName = encodeURIComponent(selectedFile.name.replace(/\.[^/.]+$/, "")); // Retire l'extension .pdf
-      navigate(`/pdf/${fileName}`);
+      const reader = new FileReader();
+      reader.onload = () => {
+        const base64 = encodeURIComponent(reader.result as string);
+        const fileName = encodeURIComponent(selectedFile.name);
+        navigate(`/pdf/${fileName}?data=${base64}`);
+      };
+      reader.readAsDataURL(selectedFile);
     }
   };
 
