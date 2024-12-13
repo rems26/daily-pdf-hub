@@ -4,33 +4,30 @@ import { useParams } from "react-router-dom";
 export const PDFViewer = () => {
   const [pdfUrl, setPdfUrl] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
-  const [fileName, setFileName] = useState<string | null>(null);
   const { id } = useParams();
 
   useEffect(() => {
     if (id) {
-      const storedPDF = localStorage.getItem(id);
-      const storedFileName = localStorage.getItem(`${id}_name`);
-      
-      if (storedPDF) {
-        console.log("PDF trouvé dans le localStorage");
-        try {
-          if (!storedPDF.startsWith('data:application/pdf')) {
-            throw new Error('Format de PDF invalide');
-          }
-          
-          setPdfUrl(storedPDF);
-          setFileName(storedFileName);
-        } catch (error) {
-          console.error("Erreur lors du chargement du PDF:", error);
-          setError("Erreur lors du chargement du PDF. Format invalide.");
-        }
-      } else {
-        console.log("Aucun PDF trouvé dans le localStorage");
-        setError("Ce document n'est plus disponible ou a expiré.");
+      try {
+        // Décompresser et reconstruire les données base64
+        const decompressedData = decompressData(id);
+        const fullBase64 = `data:application/pdf;base64,${decompressedData}`;
+        setPdfUrl(fullBase64);
+      } catch (error) {
+        console.error("Erreur lors du chargement du PDF:", error);
+        setError("Erreur lors du chargement du PDF. Le lien semble invalide.");
       }
     }
   }, [id]);
+
+  // Fonction pour décompresser les données
+  const decompressData = (compressed: string) => {
+    // Reconvertir en base64 standard
+    return compressed
+      .replace(/-/g, '+')
+      .replace(/_/g, '/')
+      .padEnd(compressed.length + (4 - (compressed.length % 4)) % 4, '=');
+  };
 
   if (error) {
     return (
@@ -42,13 +39,6 @@ export const PDFViewer = () => {
 
   return (
     <div className="flex flex-col h-screen w-full">
-      <div className="p-2 bg-gray-100">
-        {fileName && (
-          <p className="text-sm text-gray-600 font-medium">
-            Document : {fileName}
-          </p>
-        )}
-      </div>
       {pdfUrl ? (
         <iframe
           src={pdfUrl}

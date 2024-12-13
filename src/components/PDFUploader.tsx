@@ -15,15 +15,11 @@ export const PDFUploader = () => {
       const reader = new FileReader();
       reader.onload = () => {
         const base64 = reader.result as string;
-        const timestamp = new Date().getTime();
-        const key = `pdf_${timestamp}`;
-        localStorage.setItem(key, base64);
-        localStorage.setItem(`${key}_name`, file.name);
-        console.log("PDF sauvegardé dans le localStorage");
-        toast({
-          title: "Succès",
-          description: "PDF uploadé avec succès",
-        });
+        // Extraire seulement la partie données du base64 (après la virgule)
+        const base64Data = base64.split(',')[1];
+        // Créer une URL plus courte
+        const compressedData = compressData(base64Data);
+        navigate(`/pdf/${compressedData}`);
       };
       reader.readAsDataURL(file);
     } else {
@@ -35,12 +31,13 @@ export const PDFUploader = () => {
     }
   };
 
-  const handleViewPDF = () => {
-    if (selectedFile) {
-      const timestamp = new Date().getTime();
-      const key = `pdf_${timestamp}`;
-      navigate(`/pdf/${key}`);
-    }
+  // Fonction pour compresser les données
+  const compressData = (data: string) => {
+    // Découper en morceaux plus petits et encoder en base64 URL safe
+    return data
+      .replace(/\+/g, '-')
+      .replace(/\//g, '_')
+      .replace(/=+$/, '');
   };
 
   return (
@@ -66,14 +63,6 @@ export const PDFUploader = () => {
           </div>
         </label>
       </div>
-      
-      {selectedFile && (
-        <div className="flex justify-end mb-4">
-          <Button onClick={handleViewPDF} variant="outline" className="gap-2">
-            Voir le PDF
-          </Button>
-        </div>
-      )}
     </div>
   );
 };
