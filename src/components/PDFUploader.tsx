@@ -16,7 +16,11 @@ export const PDFUploader = () => {
     
     if (!file) return;
     
+    console.log("Taille du fichier:", file.size / 1024, "Ko");
+    console.log("Type du fichier:", file.type);
+    
     if (file.size > MAX_FILE_SIZE) {
+      console.log("Fichier trop volumineux");
       toast({
         title: "Erreur",
         description: "Le fichier est trop volumineux. La taille maximum est de 500 Ko.",
@@ -33,13 +37,18 @@ export const PDFUploader = () => {
         const base64Data = base64.split(',')[1];
         
         try {
+          console.log("Taille des données base64:", base64Data.length);
           // Compression plus agressive
           const compressedData = compressToEncodedURIComponent(base64Data);
+          console.log("Taille des données compressées:", compressedData.length);
+          
           if (compressedData.length > 4000) {
+            console.log("Données compressées trop volumineuses");
             throw new Error("PDF trop volumineux même après compression");
           }
           navigate(`/pdf/${compressedData}`);
         } catch (error) {
+          console.error("Erreur de compression:", error);
           toast({
             title: "Erreur",
             description: "Le PDF est trop volumineux pour être partagé via URL. Veuillez choisir un fichier plus petit.",
@@ -49,6 +58,7 @@ export const PDFUploader = () => {
       };
       reader.readAsDataURL(file);
     } else {
+      console.log("Type de fichier non valide:", file.type);
       toast({
         title: "Erreur",
         description: "Veuillez sélectionner un fichier PDF",
