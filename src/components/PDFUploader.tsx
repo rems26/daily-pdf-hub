@@ -38,20 +38,16 @@ export const PDFUploader = () => {
         
         try {
           console.log("Taille des données base64:", base64Data.length);
-          // Compression plus agressive
+          // On compresse directement les données base64 sans modification
           const compressedData = compressToEncodedURIComponent(base64Data);
           console.log("Taille des données compressées:", compressedData.length);
           
-          if (compressedData.length > 4000) {
-            console.log("Données compressées trop volumineuses");
-            throw new Error("PDF trop volumineux même après compression");
-          }
           navigate(`/pdf/${compressedData}`);
         } catch (error) {
           console.error("Erreur de compression:", error);
           toast({
             title: "Erreur",
-            description: "Le PDF est trop volumineux pour être partagé via URL. Veuillez choisir un fichier plus petit.",
+            description: "Erreur lors de la compression du PDF. Veuillez réessayer avec un fichier plus petit.",
             variant: "destructive",
           });
         }
