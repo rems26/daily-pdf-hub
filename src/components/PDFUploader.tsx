@@ -4,7 +4,7 @@ import { useToast } from "@/components/ui/use-toast";
 import { useNavigate } from "react-router-dom";
 import { compressToEncodedURIComponent } from 'lz-string';
 
-const MAX_FILE_SIZE = 50 * 1024; // 50 Ko limite
+const MAX_FILE_SIZE = 500 * 1024; // 500 Ko limite
 
 export const PDFUploader = () => {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
@@ -19,7 +19,7 @@ export const PDFUploader = () => {
     if (file.size > MAX_FILE_SIZE) {
       toast({
         title: "Erreur",
-        description: "Le fichier est trop volumineux. La taille maximum est de 50 Ko.",
+        description: "Le fichier est trop volumineux. La taille maximum est de 500 Ko.",
         variant: "destructive",
       });
       return;
@@ -76,7 +76,7 @@ export const PDFUploader = () => {
               <span className="font-semibold">Cliquez pour uploader</span> ou
               glissez-déposez
             </p>
-            <p className="text-xs text-gray-500">PDF uniquement (max 50 Ko)</p>
+            <p className="text-xs text-gray-500">PDF uniquement (max 500 Ko)</p>
           </div>
         </label>
       </div>
