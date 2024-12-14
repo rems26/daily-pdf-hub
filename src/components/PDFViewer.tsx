@@ -1,16 +1,16 @@
 import { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import { decompressFromEncodedURIComponent } from 'lz-string';
 
 export const PDFViewer = () => {
   const [pdfUrl, setPdfUrl] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const { id } = useParams();
+  const navigate = useNavigate();
 
   useEffect(() => {
     if (id) {
       try {
-        // Utiliser lz-string pour décompresser
         const decompressedData = decompressFromEncodedURIComponent(id);
         if (!decompressedData) {
           throw new Error('Données PDF invalides');
@@ -20,9 +20,12 @@ export const PDFViewer = () => {
       } catch (error) {
         console.error("Erreur lors du chargement du PDF:", error);
         setError("Erreur lors du chargement du PDF. Le lien semble invalide.");
+        setTimeout(() => {
+          navigate('/admin');
+        }, 3000);
       }
     }
-  }, [id]);
+  }, [id, navigate]);
 
   if (error) {
     return (

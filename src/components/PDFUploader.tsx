@@ -4,6 +4,8 @@ import { useToast } from "@/components/ui/use-toast";
 import { useNavigate } from "react-router-dom";
 import { compressToEncodedURIComponent } from 'lz-string';
 
+const MAX_FILE_SIZE = 2 * 1024 * 1024; // 2MB limite
+
 export const PDFUploader = () => {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const { toast } = useToast();
@@ -11,15 +13,39 @@ export const PDFUploader = () => {
 
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
-    if (file && file.type === "application/pdf") {
+    
+    if (!file) return;
+    
+    if (file.size > MAX_FILE_SIZE) {
+      toast({
+        title: "Erreur",
+        description: "Le fichier est trop volumineux. La taille maximum est de 2MB.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    if (file.type === "application/pdf") {
       setSelectedFile(file);
       const reader = new FileReader();
       reader.onload = () => {
         const base64 = reader.result as string;
         const base64Data = base64.split(',')[1];
-        // Utiliser lz-string pour une meilleure compression
-        const compressedData = compressToEncodedURIComponent(base64Data);
-        navigate(`/pdf/${compressedData}`);
+        
+        try {
+          // Compression plus agressive
+          const compressedData = compressToEncodedURIComponent(base64Data);
+          if (compressedData.length > 4000) {
+            throw new Error("PDF trop volumineux même après compression");
+          }
+          navigate(`/pdf/${compressedData}`);
+        } catch (error) {
+          toast({
+            title: "Erreur",
+            description: "Le PDF est trop volumineux pour être partagé via URL. Veuillez choisir un fichier plus petit.",
+            variant: "destructive",
+          });
+        }
       };
       reader.readAsDataURL(file);
     } else {
@@ -50,7 +76,7 @@ export const PDFUploader = () => {
               <span className="font-semibold">Cliquez pour uploader</span> ou
               glissez-déposez
             </p>
-            <p className="text-xs text-gray-500">PDF uniquement</p>
+            <p className="text-xs text-gray-500">PDF uniquement (max 2MB)</p>
           </div>
         </label>
       </div>
