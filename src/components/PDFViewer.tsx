@@ -34,21 +34,19 @@ export const PDFViewer = () => {
 
         console.log("Found PDF record:", pdfRecord);
 
-        // Get the public URL for the file
-        const { data } = supabase
+        // Get the public URL for the file using the storage API
+        const { data: storageData, error: storageError } = await supabase
           .storage
           .from('pdfs')
-          .getPublicUrl(pdfRecord.file_path);
+          .createSignedUrl(pdfRecord.file_path, 60 * 60); // URL valide pendant 1 heure
 
-        if (!data.publicUrl) {
-          throw new Error('Could not generate public URL');
+        if (storageError || !storageData?.signedUrl) {
+          console.error("Storage error:", storageError);
+          throw new Error('Could not generate signed URL');
         }
 
-        // Log the complete URL for debugging
-        console.log("Generated public URL:", data.publicUrl);
-        console.log("PDF record file path:", pdfRecord.file_path);
-        
-        setPdfUrl(data.publicUrl);
+        console.log("Generated signed URL:", storageData.signedUrl);
+        setPdfUrl(storageData.signedUrl);
 
       } catch (error) {
         console.error("Error loading PDF:", error);
