@@ -44,7 +44,10 @@ export const PDFViewer = () => {
           throw new Error('Could not generate public URL');
         }
 
+        // Log the complete URL for debugging
         console.log("Generated public URL:", data.publicUrl);
+        console.log("PDF record file path:", pdfRecord.file_path);
+        
         setPdfUrl(data.publicUrl);
 
       } catch (error) {
