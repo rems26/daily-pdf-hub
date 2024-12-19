@@ -28,17 +28,14 @@ export const PDFUploader = () => {
     if (file.type === "application/pdf") {
       setSelectedFile(file);
       try {
-        console.log("Début de l'upload...");
-        console.log("Fichier à uploader:", file.name, file.size, "bytes");
+        // Get current session
+        const { data: { session }, error: sessionError } = await supabase.auth.getSession();
 
-        // Récupérer l'utilisateur courant
-        const { data: { user }, error: userError } = await supabase.auth.getUser();
-
-        if (userError || !user) {
+        if (sessionError || !session) {
           throw new Error("Vous devez être connecté pour uploader un fichier");
         }
 
-        // Upload du fichier dans le bucket storage
+        // Upload file to storage bucket
         const { data, error: uploadError } = await supabase.storage
           .from('pdfs')
           .upload(`${Date.now()}_${file.name}`, file, {
@@ -46,29 +43,19 @@ export const PDFUploader = () => {
             upsert: false
           });
 
-        console.log("Résultat upload:", data, uploadError);
+        if (uploadError) throw uploadError;
 
-        if (uploadError) {
-          console.error("Erreur upload détaillée:", uploadError);
-          throw uploadError;
-        }
-
-        // Création de l'entrée dans la table pdfs avec l'ID de l'utilisateur connecté
+        // Insert record into pdfs table with authenticated user's ID
         const { data: insertData, error: insertError } = await supabase
           .from('pdfs')
           .insert({
             name: file.name,
             file_path: data.path,
-            user_id: user.id
+            user_id: session.user.id
           })
           .select();
 
-        console.log("Résultat insertion DB:", insertData, insertError);
-
-        if (insertError) {
-          console.error("Erreur insertion DB détaillée:", insertError);
-          throw insertError;
-        }
+        if (insertError) throw insertError;
 
         toast({
           title: "Succès",
@@ -79,7 +66,7 @@ export const PDFUploader = () => {
           navigate(`/pdf/${data.path}`);
         }
       } catch (error) {
-        console.error("Erreur complète:", error);
+        console.error("Erreur:", error);
         toast({
           title: "Erreur",
           description: error instanceof Error ? error.message : "Une erreur est survenue lors de l'upload du fichier",
