@@ -15,10 +15,22 @@ export const PDFViewer = () => {
       try {
         console.log("Attempting to fetch PDF with ID:", id);
         
+        // Get the record from the database first
+        const { data: pdfRecord, error: dbError } = await supabase
+          .from('pdfs')
+          .select('file_path')
+          .eq('file_path', id)
+          .single();
+
+        if (dbError || !pdfRecord) {
+          console.error("Database error or no record found:", dbError);
+          throw new Error('PDF not found in database');
+        }
+
         // Get the public URL for the file
         const { data: publicURL } = supabase.storage
           .from('pdfs')
-          .getPublicUrl(id);
+          .getPublicUrl(pdfRecord.file_path);
 
         if (!publicURL?.publicUrl) {
           throw new Error('Could not generate public URL');
