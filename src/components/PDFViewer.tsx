@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { decompressFromEncodedURIComponent } from 'lz-string';
+import { supabase } from "@/lib/supabase";
 
 export const PDFViewer = () => {
   const [pdfUrl, setPdfUrl] = useState<string | null>(null);
@@ -9,14 +9,28 @@ export const PDFViewer = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    if (id) {
+    const fetchPDF = async () => {
+      if (!id) return;
+
       try {
-        const decompressedData = decompressFromEncodedURIComponent(id);
-        if (!decompressedData) {
-          throw new Error('Données PDF invalides');
+        console.log("Fetching PDF with path:", id);
+        
+        const { data, error: downloadError } = await supabase.storage
+          .from('pdfs')
+          .download(id);
+
+        if (downloadError) {
+          throw downloadError;
         }
-        const fullBase64 = `data:application/pdf;base64,${decompressedData}`;
-        setPdfUrl(fullBase64);
+
+        if (!data) {
+          throw new Error('Aucune donnée PDF trouvée');
+        }
+
+        // Créer une URL blob pour le PDF
+        const url = URL.createObjectURL(data);
+        setPdfUrl(url);
+
       } catch (error) {
         console.error("Erreur lors du chargement du PDF:", error);
         setError("Erreur lors du chargement du PDF. Le lien semble invalide.");
@@ -24,7 +38,16 @@ export const PDFViewer = () => {
           navigate('/admin');
         }, 3000);
       }
-    }
+    };
+
+    fetchPDF();
+
+    // Nettoyer l'URL blob à la destruction du composant
+    return () => {
+      if (pdfUrl) {
+        URL.revokeObjectURL(pdfUrl);
+      }
+    };
   }, [id, navigate]);
 
   if (error) {
