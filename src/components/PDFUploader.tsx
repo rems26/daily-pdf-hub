@@ -1,8 +1,8 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { useToast } from "@/components/ui/use-toast";
+import { useToast } from "@/hooks/use-toast";
 import { useNavigate } from "react-router-dom";
-import { useSupabaseClient } from "@supabase/auth-helpers-react";
+import { supabase } from "@/lib/supabase";
 
 const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5 MB limite
 
@@ -10,7 +10,6 @@ export const PDFUploader = () => {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const { toast } = useToast();
   const navigate = useNavigate();
-  const supabase = useSupabaseClient();
 
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
