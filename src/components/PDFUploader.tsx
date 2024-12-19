@@ -28,10 +28,17 @@ export const PDFUploader = () => {
     if (file.type === "application/pdf") {
       setSelectedFile(file);
       try {
-        const { data: { user } } = await supabase.auth.getUser();
+        const { data: sessionData } = await supabase.auth.getSession();
+        
+        if (!sessionData.session?.access_token) {
+          throw new Error("Vous devez être connecté pour uploader un fichier");
+        }
+
+        // Ensure we're using the current session
+        const { data: { user } } = await supabase.auth.getUser(sessionData.session.access_token);
         
         if (!user) {
-          throw new Error("Vous devez être connecté pour uploader un fichier");
+          throw new Error("Impossible de récupérer les informations utilisateur");
         }
 
         // Upload file to storage bucket
