@@ -35,8 +35,11 @@ export const PDFUploader = () => {
           throw new Error("Vous devez être connecté pour uploader un fichier");
         }
 
-        // Upload file to storage bucket
-        const { data, error: uploadError } = await supabase.storage
+        // Create authenticated Supabase client with session
+        const supabaseWithAuth = supabase.auth.setSession(session);
+
+        // Upload file to storage bucket using authenticated client
+        const { data: storageData, error: uploadError } = await supabase.storage
           .from('pdfs')
           .upload(`${Date.now()}_${file.name}`, file, {
             cacheControl: '3600',
@@ -50,7 +53,7 @@ export const PDFUploader = () => {
           .from('pdfs')
           .insert({
             name: file.name,
-            file_path: data.path,
+            file_path: storageData.path,
             user_id: session.user.id
           })
           .select();
@@ -63,7 +66,7 @@ export const PDFUploader = () => {
         });
 
         if (insertData?.[0]) {
-          navigate(`/pdf/${data.path}`);
+          navigate(`/pdf/${storageData.path}`);
         }
       } catch (error) {
         console.error("Erreur:", error);
