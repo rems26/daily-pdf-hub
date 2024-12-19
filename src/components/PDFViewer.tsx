@@ -34,10 +34,10 @@ export const PDFViewer = () => {
 
         console.log("Found PDF record:", pdfRecord);
 
-        // Download the file using the file_path from the database
+        // Download the file using the file_path directly
         const { data: fileData, error: downloadError } = await supabase.storage
           .from('pdfs')
-          .download(id); // Utilisons directement l'ID qui est le chemin complet
+          .download(pdfRecord.file_path);
 
         if (downloadError) {
           console.error("Download error:", downloadError);
