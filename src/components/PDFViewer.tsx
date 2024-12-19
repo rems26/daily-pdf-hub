@@ -15,25 +15,10 @@ export const PDFViewer = () => {
       try {
         console.log("Fetching PDF with path:", id);
         
-        // First, get the file record from the database to get the full path
-        const { data: pdfRecord, error: dbError } = await supabase
-          .from('pdfs')
-          .select('file_path')
-          .eq('file_path', id)
-          .single();
-
-        if (dbError) {
-          throw dbError;
-        }
-
-        if (!pdfRecord) {
-          throw new Error('PDF record not found');
-        }
-
-        // Now download the file using the correct path
+        // Download the file directly using the ID from the URL
         const { data, error: downloadError } = await supabase.storage
           .from('pdfs')
-          .download(pdfRecord.file_path);
+          .download(id);
 
         if (downloadError) {
           throw downloadError;
