@@ -15,10 +15,13 @@ export const PDFViewer = () => {
       try {
         console.log("Fetching PDF with path:", id);
         
-        // Download the file directly using the ID from the URL
+        // Remove the 'pdfs/' prefix if it exists in the id
+        const cleanPath = id.replace(/^pdfs\//, '');
+        
+        // Download the file using the cleaned path
         const { data, error: downloadError } = await supabase.storage
           .from('pdfs')
-          .download(id);
+          .download(cleanPath);
 
         if (downloadError) {
           throw downloadError;
