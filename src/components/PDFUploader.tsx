@@ -28,17 +28,13 @@ export const PDFUploader = () => {
     if (file.type === "application/pdf") {
       setSelectedFile(file);
       try {
-        // Get current session
-        const { data: { session }, error: sessionError } = await supabase.auth.getSession();
-
-        if (sessionError || !session) {
+        const { data: { user } } = await supabase.auth.getUser();
+        
+        if (!user) {
           throw new Error("Vous devez être connecté pour uploader un fichier");
         }
 
-        // Create authenticated Supabase client with session
-        const supabaseWithAuth = supabase.auth.setSession(session);
-
-        // Upload file to storage bucket using authenticated client
+        // Upload file to storage bucket
         const { data: storageData, error: uploadError } = await supabase.storage
           .from('pdfs')
           .upload(`${Date.now()}_${file.name}`, file, {
@@ -48,13 +44,13 @@ export const PDFUploader = () => {
 
         if (uploadError) throw uploadError;
 
-        // Insert record into pdfs table with authenticated user's ID
+        // Insert record into pdfs table
         const { data: insertData, error: insertError } = await supabase
           .from('pdfs')
           .insert({
             name: file.name,
             file_path: storageData.path,
-            user_id: session.user.id
+            user_id: user.id
           })
           .select();
 
