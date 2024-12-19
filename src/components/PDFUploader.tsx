@@ -31,6 +31,13 @@ export const PDFUploader = () => {
         console.log("Début de l'upload...");
         console.log("Fichier à uploader:", file.name, file.size, "bytes");
 
+        // Récupérer l'utilisateur courant
+        const { data: { user }, error: userError } = await supabase.auth.getUser();
+
+        if (userError || !user) {
+          throw new Error("Vous devez être connecté pour uploader un fichier");
+        }
+
         // Upload du fichier dans le bucket storage
         const { data, error: uploadError } = await supabase.storage
           .from('pdfs')
@@ -46,13 +53,13 @@ export const PDFUploader = () => {
           throw uploadError;
         }
 
-        // Création de l'entrée dans la table pdfs
+        // Création de l'entrée dans la table pdfs avec l'ID de l'utilisateur connecté
         const { data: insertData, error: insertError } = await supabase
           .from('pdfs')
           .insert({
             name: file.name,
             file_path: data.path,
-            user_id: crypto.randomUUID()
+            user_id: user.id
           })
           .select();
 
@@ -75,7 +82,7 @@ export const PDFUploader = () => {
         console.error("Erreur complète:", error);
         toast({
           title: "Erreur",
-          description: "Une erreur est survenue lors de l'upload du fichier",
+          description: error instanceof Error ? error.message : "Une erreur est survenue lors de l'upload du fichier",
           variant: "destructive",
         });
       }
