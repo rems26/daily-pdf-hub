@@ -46,13 +46,13 @@ export const PDFUploader = () => {
           throw uploadError;
         }
 
-        // Création de l'entrée dans la table pdfs avec un UUID généré
+        // Création de l'entrée dans la table pdfs
         const { data: insertData, error: insertError } = await supabase
           .from('pdfs')
           .insert({
             name: file.name,
             file_path: data.path,
-            user_id: crypto.randomUUID() // Utilisation d'un UUID généré au lieu de 'admin'
+            user_id: crypto.randomUUID()
           })
           .select();
 
@@ -68,7 +68,9 @@ export const PDFUploader = () => {
           description: "Le PDF a été uploadé avec succès",
         });
 
-        navigate(`/pdf/${data.path}`);
+        if (insertData?.[0]) {
+          navigate(`/pdf/${data.path}`);
+        }
       } catch (error) {
         console.error("Erreur complète:", error);
         toast({
