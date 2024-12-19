@@ -34,17 +34,24 @@ export const PDFViewer = () => {
 
         console.log("Found PDF record:", pdfRecord);
 
-        // Get the public URL for the file
-        const { data: publicURL } = supabase.storage
+        // Download the file using the file_path from the database
+        const { data: fileData, error: downloadError } = await supabase.storage
           .from('pdfs')
-          .getPublicUrl(pdfRecord.file_path);
+          .download(pdfRecord.file_path);
 
-        if (!publicURL.publicUrl) {
-          throw new Error('Could not generate public URL');
+        if (downloadError) {
+          console.error("Download error:", downloadError);
+          throw downloadError;
         }
 
-        setPdfUrl(publicURL.publicUrl);
-        console.log("PDF URL generated successfully:", publicURL.publicUrl);
+        if (!fileData) {
+          throw new Error('No PDF data received');
+        }
+
+        // Create blob URL for the PDF
+        const url = URL.createObjectURL(fileData);
+        setPdfUrl(url);
+        console.log("PDF loaded successfully");
 
       } catch (error) {
         console.error("Error loading PDF:", error);
@@ -56,6 +63,13 @@ export const PDFViewer = () => {
     };
 
     fetchPDF();
+
+    // Cleanup blob URL on unmount
+    return () => {
+      if (pdfUrl) {
+        URL.revokeObjectURL(pdfUrl);
+      }
+    };
   }, [id, navigate]);
 
   if (error) {
