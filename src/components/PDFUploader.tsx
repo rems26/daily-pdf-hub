@@ -37,19 +37,19 @@ export const PDFUploader = () => {
       try {
         console.log("Starting file upload process...");
         
-        const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+        const { data: { user }, error: userError } = await supabase.auth.getUser();
         
-        if (sessionError) {
-          console.error("Session error:", sessionError);
-          throw sessionError;
+        if (userError) {
+          console.error("User error:", userError);
+          throw userError;
         }
 
-        if (!session) {
-          console.error("No session found");
+        if (!user) {
+          console.error("No user found");
           throw new Error("Vous devez être connecté pour uploader un fichier");
         }
 
-        console.log("Session found:", session.user.id);
+        console.log("User found:", user.id);
 
         // Create sanitized filename
         const sanitizedFileName = sanitizeFileName(file.name);
@@ -79,7 +79,7 @@ export const PDFUploader = () => {
           .insert([{
             name: file.name,
             file_path: storageData.path,
-            user_id: session.user.id,
+            user_id: user.id,
             created_at: new Date().toISOString()
           }])
           .select('*')
