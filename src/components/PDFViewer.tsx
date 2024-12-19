@@ -15,43 +15,17 @@ export const PDFViewer = () => {
       try {
         console.log("Attempting to fetch PDF with ID:", id);
         
-        // First, get the record from the database to ensure we have the correct path
-        const { data: pdfRecord, error: dbError } = await supabase
+        // Get the public URL for the file
+        const { data: publicURL } = supabase.storage
           .from('pdfs')
-          .select('file_path')
-          .eq('file_path', id)
-          .single();
+          .getPublicUrl(id);
 
-        if (dbError) {
-          console.error("Database error:", dbError);
-          throw dbError;
+        if (!publicURL?.publicUrl) {
+          throw new Error('Could not generate public URL');
         }
 
-        if (!pdfRecord) {
-          console.error("No PDF record found for path:", id);
-          throw new Error('PDF not found in database');
-        }
-
-        console.log("Found PDF record:", pdfRecord);
-
-        // Download the file using the file_path directly, without any prefix
-        const { data: fileData, error: downloadError } = await supabase.storage
-          .from('pdfs')
-          .download(pdfRecord.file_path);
-
-        if (downloadError) {
-          console.error("Download error:", downloadError);
-          throw downloadError;
-        }
-
-        if (!fileData) {
-          throw new Error('No PDF data received');
-        }
-
-        // Create blob URL for the PDF
-        const url = URL.createObjectURL(fileData);
-        setPdfUrl(url);
-        console.log("PDF loaded successfully");
+        console.log("Generated public URL:", publicURL.publicUrl);
+        setPdfUrl(publicURL.publicUrl);
 
       } catch (error) {
         console.error("Error loading PDF:", error);
@@ -63,13 +37,6 @@ export const PDFViewer = () => {
     };
 
     fetchPDF();
-
-    // Cleanup blob URL on unmount
-    return () => {
-      if (pdfUrl) {
-        URL.revokeObjectURL(pdfUrl);
-      }
-    };
   }, [id, navigate]);
 
   if (error) {
