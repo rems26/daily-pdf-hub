@@ -35,22 +35,27 @@ export const PDFUploader = () => {
     if (file.type === "application/pdf") {
       setSelectedFile(file);
       try {
-        const { data: sessionData } = await supabase.auth.getSession();
+        console.log("Starting file upload process...");
         
-        if (!sessionData.session?.access_token) {
+        const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+        
+        if (sessionError) {
+          console.error("Session error:", sessionError);
+          throw sessionError;
+        }
+
+        if (!session) {
+          console.error("No session found");
           throw new Error("Vous devez être connecté pour uploader un fichier");
         }
 
-        // Ensure we're using the current session
-        const { data: { user } } = await supabase.auth.getUser(sessionData.session.access_token);
-        
-        if (!user) {
-          throw new Error("Impossible de récupérer les informations utilisateur");
-        }
+        console.log("Session found:", session.user.id);
 
         // Create sanitized filename
         const sanitizedFileName = sanitizeFileName(file.name);
         const filePath = `${Date.now()}_${sanitizedFileName}`;
+
+        console.log("Uploading file:", filePath);
 
         // Upload file to storage bucket
         const { data: storageData, error: uploadError } = await supabase.storage
@@ -60,7 +65,12 @@ export const PDFUploader = () => {
             upsert: false
           });
 
-        if (uploadError) throw uploadError;
+        if (uploadError) {
+          console.error("Storage error:", uploadError);
+          throw uploadError;
+        }
+
+        console.log("File uploaded successfully:", storageData);
 
         // Insert record into pdfs table
         const { data: insertData, error: insertError } = await supabase
@@ -68,11 +78,16 @@ export const PDFUploader = () => {
           .insert({
             name: file.name,
             file_path: storageData.path,
-            user_id: user.id
+            user_id: session.user.id
           })
           .select();
 
-        if (insertError) throw insertError;
+        if (insertError) {
+          console.error("Insert error:", insertError);
+          throw insertError;
+        }
+
+        console.log("Record inserted successfully:", insertData);
 
         toast({
           title: "Succès",
