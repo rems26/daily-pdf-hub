@@ -29,6 +29,17 @@ export const PDFUploader = () => {
     if (file.type === "application/pdf") {
       setSelectedFile(file);
       try {
+        const { data: { user } } = await supabase.auth.getUser();
+        
+        if (!user) {
+          toast({
+            title: "Erreur",
+            description: "Vous devez être connecté pour uploader un fichier",
+            variant: "destructive",
+          });
+          return;
+        }
+
         // Upload du fichier dans le bucket storage
         const { data, error: uploadError } = await supabase.storage
           .from('pdfs')
@@ -42,6 +53,7 @@ export const PDFUploader = () => {
           .insert({
             name: file.name,
             file_path: data.path,
+            user_id: user.id
           });
 
         if (insertError) throw insertError;
