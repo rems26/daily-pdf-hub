@@ -47,15 +47,16 @@ export const PDFUploader = () => {
         }
 
         // Création de l'entrée dans la table pdfs avec un UUID généré
-        const { error: insertError } = await supabase
+        const { data: insertData, error: insertError } = await supabase
           .from('pdfs')
           .insert({
             name: file.name,
             file_path: data.path,
             user_id: crypto.randomUUID() // Utilisation d'un UUID généré au lieu de 'admin'
-          });
+          })
+          .select();
 
-        console.log("Résultat insertion DB:", insertError);
+        console.log("Résultat insertion DB:", insertData, insertError);
 
         if (insertError) {
           console.error("Erreur insertion DB détaillée:", insertError);
