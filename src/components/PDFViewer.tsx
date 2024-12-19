@@ -69,11 +69,18 @@ export const PDFViewer = () => {
   return (
     <div className="flex flex-col h-screen w-full">
       {pdfUrl ? (
-        <iframe
-          src={pdfUrl}
-          className="w-full flex-grow border-none"
-          title="PDF Viewer"
-        />
+        <object
+          data={pdfUrl}
+          type="application/pdf"
+          className="w-full h-full"
+        >
+          <p>
+            Le PDF ne peut pas être affiché directement.{" "}
+            <a href={pdfUrl} target="_blank" rel="noopener noreferrer" className="text-blue-500 hover:underline">
+              Cliquez ici pour l'ouvrir dans un nouvel onglet
+            </a>
+          </p>
+        </object>
       ) : (
         <div className="flex items-center justify-center h-full">
           <p className="text-gray-600">Chargement du document...</p>
