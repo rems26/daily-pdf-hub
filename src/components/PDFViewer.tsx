@@ -13,41 +13,22 @@ export const PDFViewer = () => {
       if (!id) return;
 
       try {
-        console.log("Début de la récupération du PDF avec l'ID:", id);
+        console.log("Attempting to fetch PDF with ID:", id);
         
-        // Get the record from the database first
-        const { data: pdfRecord, error: dbError } = await supabase
-          .from('pdfs')
-          .select('file_path')
-          .eq('id', id)
-          .single();
-
-        console.log("Résultat de la requête DB:", { pdfRecord, dbError });
-
-        if (dbError || !pdfRecord) {
-          console.error("Erreur ou pas d'enregistrement trouvé:", dbError);
-          throw new Error('PDF not found in database');
-        }
-
-        console.log("Chemin du fichier trouvé:", pdfRecord.file_path);
-
         // Get the public URL for the file
-        const { data } = supabase.storage
+        const { data: publicURL } = supabase.storage
           .from('pdfs')
-          .getPublicUrl(pdfRecord.file_path);
+          .getPublicUrl(id);
 
-        console.log("URL publique générée:", data);
-
-        if (!data.publicUrl) {
-          console.error("Impossible de générer l'URL publique");
+        if (!publicURL?.publicUrl) {
           throw new Error('Could not generate public URL');
         }
 
-        console.log("URL finale du PDF:", data.publicUrl);
-        setPdfUrl(data.publicUrl);
+        console.log("Generated public URL:", publicURL.publicUrl);
+        setPdfUrl(publicURL.publicUrl);
 
       } catch (error) {
-        console.error("Erreur complète:", error);
+        console.error("Error loading PDF:", error);
         setError("Erreur lors du chargement du PDF. Le lien semble invalide.");
         setTimeout(() => {
           navigate('/admin');

@@ -97,9 +97,8 @@ export const PDFUploader = () => {
           description: "Le PDF a été uploadé avec succès",
         });
 
-        // Navigate using the database record ID instead of the file path
         if (insertData) {
-          navigate(`/pdf/${insertData.id}`);
+          navigate(`/pdf/${storageData.path}`);
         }
       } catch (error) {
         console.error("Erreur:", error);
