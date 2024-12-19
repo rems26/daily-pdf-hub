@@ -1,29 +1,40 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { useToast } from "@/components/ui/use-toast";
+import { useToast } from "@/hooks/use-toast";
+import { supabase } from "@/lib/supabase";
 
 interface LoginFormProps {
   onLogin: (success: boolean) => void;
 }
 
 export const LoginForm = ({ onLogin }: LoginFormProps) => {
+  const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const { toast } = useToast();
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    // Dans une vraie application, utilisez une vraie authentification
-    if (password === "admin123") {
-      onLogin(true);
-      toast({
-        title: "Connexion réussie",
-        description: "Bienvenue sur DailyDocView",
+    try {
+      const { data, error } = await supabase.auth.signInWithPassword({
+        email,
+        password,
       });
-    } else {
+
+      if (error) throw error;
+
+      if (data.user) {
+        onLogin(true);
+        toast({
+          title: "Connexion réussie",
+          description: "Bienvenue sur DailyDocView",
+        });
+      }
+    } catch (error) {
+      console.error("Erreur de connexion:", error);
       toast({
         title: "Erreur de connexion",
-        description: "Mot de passe incorrect",
+        description: "Email ou mot de passe incorrect",
         variant: "destructive",
       });
     }
@@ -33,8 +44,15 @@ export const LoginForm = ({ onLogin }: LoginFormProps) => {
     <form onSubmit={handleSubmit} className="space-y-4 w-full max-w-sm">
       <div className="space-y-2">
         <Input
+          type="email"
+          placeholder="Email"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          className="w-full"
+        />
+        <Input
           type="password"
-          placeholder="Mot de passe administrateur"
+          placeholder="Mot de passe"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
           className="w-full"
