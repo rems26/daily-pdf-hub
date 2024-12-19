@@ -13,30 +13,48 @@ export const PDFViewer = () => {
       if (!id) return;
 
       try {
-        console.log("Fetching PDF with path:", id);
+        console.log("Attempting to fetch PDF with ID:", id);
         
-        // Remove the 'pdfs/' prefix if it exists in the id
-        const cleanPath = id.replace(/^pdfs\//, '');
-        
-        // Download the file using the cleaned path
-        const { data, error: downloadError } = await supabase.storage
+        // First, get the record from the database to ensure we have the correct path
+        const { data: pdfRecord, error: dbError } = await supabase
           .from('pdfs')
-          .download(cleanPath);
+          .select('file_path')
+          .eq('file_path', id)
+          .single();
+
+        if (dbError) {
+          console.error("Database error:", dbError);
+          throw dbError;
+        }
+
+        if (!pdfRecord) {
+          console.error("No PDF record found for path:", id);
+          throw new Error('PDF not found in database');
+        }
+
+        console.log("Found PDF record:", pdfRecord);
+
+        // Download the file using the file_path from the database
+        const { data: fileData, error: downloadError } = await supabase.storage
+          .from('pdfs')
+          .download(pdfRecord.file_path);
 
         if (downloadError) {
+          console.error("Download error:", downloadError);
           throw downloadError;
         }
 
-        if (!data) {
-          throw new Error('Aucune donnée PDF trouvée');
+        if (!fileData) {
+          throw new Error('No PDF data received');
         }
 
-        // Créer une URL blob pour le PDF
-        const url = URL.createObjectURL(data);
+        // Create blob URL for the PDF
+        const url = URL.createObjectURL(fileData);
         setPdfUrl(url);
+        console.log("PDF loaded successfully");
 
       } catch (error) {
-        console.error("Erreur lors du chargement du PDF:", error);
+        console.error("Error loading PDF:", error);
         setError("Erreur lors du chargement du PDF. Le lien semble invalide.");
         setTimeout(() => {
           navigate('/admin');
@@ -46,7 +64,7 @@ export const PDFViewer = () => {
 
     fetchPDF();
 
-    // Nettoyer l'URL blob à la destruction du composant
+    // Cleanup blob URL on unmount
     return () => {
       if (pdfUrl) {
         URL.revokeObjectURL(pdfUrl);
