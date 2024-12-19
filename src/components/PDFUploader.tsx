@@ -6,6 +6,13 @@ import { supabase } from "@/lib/supabase";
 
 const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5 MB limite
 
+const sanitizeFileName = (fileName: string): string => {
+  return fileName
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '') // Remove accents
+    .replace(/[^a-zA-Z0-9.-]/g, '_'); // Replace special chars with underscore
+};
+
 export const PDFUploader = () => {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const { toast } = useToast();
@@ -41,10 +48,14 @@ export const PDFUploader = () => {
           throw new Error("Impossible de récupérer les informations utilisateur");
         }
 
+        // Create sanitized filename
+        const sanitizedFileName = sanitizeFileName(file.name);
+        const filePath = `${Date.now()}_${sanitizedFileName}`;
+
         // Upload file to storage bucket
         const { data: storageData, error: uploadError } = await supabase.storage
           .from('pdfs')
-          .upload(`${Date.now()}_${file.name}`, file, {
+          .upload(filePath, file, {
             cacheControl: '3600',
             upsert: false
           });
