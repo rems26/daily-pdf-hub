@@ -30,16 +30,16 @@ export const PDFViewer = () => {
         console.log("Found PDF record:", pdfRecord);
 
         // Get the public URL for the file
-        const { data: publicURL } = supabase.storage
+        const { data: { publicUrl } } = supabase.storage
           .from('pdfs')
           .getPublicUrl(pdfRecord.file_path);
 
-        if (!publicURL?.publicUrl) {
+        if (!publicUrl) {
           throw new Error('Could not generate public URL');
         }
 
-        console.log("Generated public URL:", publicURL.publicUrl);
-        setPdfUrl(publicURL.publicUrl);
+        console.log("Generated public URL:", publicUrl);
+        setPdfUrl(publicUrl);
 
       } catch (error) {
         console.error("Error loading PDF:", error);
