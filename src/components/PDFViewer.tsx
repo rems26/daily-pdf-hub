@@ -34,7 +34,7 @@ export const PDFViewer = () => {
 
         console.log("Found PDF record:", pdfRecord);
 
-        // Download the file using the file_path directly
+        // Download the file using the file_path directly, without any prefix
         const { data: fileData, error: downloadError } = await supabase.storage
           .from('pdfs')
           .download(pdfRecord.file_path);
