@@ -28,12 +28,23 @@ export const PDFUploader = () => {
     if (file.type === "application/pdf") {
       setSelectedFile(file);
       try {
+        console.log("Début de l'upload...");
+        console.log("Fichier à uploader:", file.name, file.size, "bytes");
+
         // Upload du fichier dans le bucket storage
         const { data, error: uploadError } = await supabase.storage
           .from('pdfs')
-          .upload(`${Date.now()}_${file.name}`, file);
+          .upload(`${Date.now()}_${file.name}`, file, {
+            cacheControl: '3600',
+            upsert: false
+          });
 
-        if (uploadError) throw uploadError;
+        console.log("Résultat upload:", data, uploadError);
+
+        if (uploadError) {
+          console.error("Erreur upload détaillée:", uploadError);
+          throw uploadError;
+        }
 
         // Création de l'entrée dans la table pdfs
         const { error: insertError } = await supabase
@@ -41,10 +52,15 @@ export const PDFUploader = () => {
           .insert({
             name: file.name,
             file_path: data.path,
-            user_id: 'admin' // Utilisation d'une valeur fixe pour user_id
+            user_id: 'admin'
           });
 
-        if (insertError) throw insertError;
+        console.log("Résultat insertion DB:", insertError);
+
+        if (insertError) {
+          console.error("Erreur insertion DB détaillée:", insertError);
+          throw insertError;
+        }
 
         toast({
           title: "Succès",
@@ -53,7 +69,7 @@ export const PDFUploader = () => {
 
         navigate(`/pdf/${data.path}`);
       } catch (error) {
-        console.error("Erreur lors de l'upload:", error);
+        console.error("Erreur complète:", error);
         toast({
           title: "Erreur",
           description: "Une erreur est survenue lors de l'upload du fichier",
