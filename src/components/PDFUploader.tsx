@@ -57,12 +57,13 @@ export const PDFUploader = () => {
 
         console.log("Uploading file:", filePath);
 
-        // Upload file to storage bucket
+        // Upload file to storage bucket with explicit content-type
         const { data: storageData, error: uploadError } = await supabase.storage
           .from('pdfs')
           .upload(filePath, file, {
             cacheControl: '3600',
-            upsert: false
+            upsert: false,
+            contentType: 'application/pdf'
           });
 
         if (uploadError) {
@@ -72,15 +73,17 @@ export const PDFUploader = () => {
 
         console.log("File uploaded successfully:", storageData);
 
-        // Insert record into pdfs table
+        // Insert record into pdfs table with explicit user_id
         const { data: insertData, error: insertError } = await supabase
           .from('pdfs')
-          .insert({
+          .insert([{
             name: file.name,
             file_path: storageData.path,
-            user_id: session.user.id
-          })
-          .select();
+            user_id: session.user.id,
+            created_at: new Date().toISOString()
+          }])
+          .select('*')
+          .single();
 
         if (insertError) {
           console.error("Insert error:", insertError);
@@ -94,7 +97,7 @@ export const PDFUploader = () => {
           description: "Le PDF a été uploadé avec succès",
         });
 
-        if (insertData?.[0]) {
+        if (insertData) {
           navigate(`/pdf/${storageData.path}`);
         }
       } catch (error) {
