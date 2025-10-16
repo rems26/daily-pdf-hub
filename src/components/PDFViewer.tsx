@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 
 export const PDFViewer = () => {
   const [pdfUrl, setPdfUrl] = useState<string | null>(null);
+  const [downloadUrl, setDownloadUrl] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const { id } = useParams();
   const navigate = useNavigate();
@@ -46,7 +47,19 @@ export const PDFViewer = () => {
         }
 
         console.log("Generated public URL:", storageData.publicUrl);
+        
+        // Set both URLs
         setPdfUrl(storageData.publicUrl);
+        
+        // Create download URL with download header
+        const { data: downloadData } = supabase
+          .storage
+          .from('pdfs')
+          .getPublicUrl(pdfRecord.file_path, {
+            download: true
+          });
+        
+        setDownloadUrl(downloadData.publicUrl);
 
       } catch (error) {
         console.error("Error loading PDF:", error);
@@ -75,6 +88,16 @@ export const PDFViewer = () => {
           <div className="bg-white shadow-sm p-4 flex items-center justify-between">
             <h1 className="text-lg font-semibold text-gray-800">Visualiseur PDF</h1>
             <div className="flex gap-2">
+              <a 
+                href={downloadUrl || pdfUrl} 
+                download
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                <Button variant="default" size="sm">
+                  Télécharger
+                </Button>
+              </a>
               <Button
                 onClick={() => window.open(pdfUrl, '_blank')}
                 variant="outline"
@@ -91,15 +114,34 @@ export const PDFViewer = () => {
               </Button>
             </div>
           </div>
-          <iframe
-            src={`${pdfUrl}#toolbar=1&navpanes=1&scrollbar=1`}
-            className="w-full flex-grow border-none"
-            title="PDF Viewer"
-            onError={(e) => {
-              console.error("Iframe error:", e);
-              setError("Impossible de charger le PDF dans le navigateur. Essayez de l'ouvrir dans un nouvel onglet.");
-            }}
-          />
+          <div className="flex-grow p-4">
+            <object
+              data={pdfUrl}
+              type="application/pdf"
+              className="w-full h-full rounded-lg shadow-lg"
+            >
+              <div className="flex flex-col items-center justify-center h-full gap-4">
+                <p className="text-gray-600">
+                  Votre navigateur ne peut pas afficher le PDF directement.
+                </p>
+                <div className="flex gap-2">
+                  <a 
+                    href={downloadUrl || pdfUrl} 
+                    download
+                    className="inline-block"
+                  >
+                    <Button>Télécharger le PDF</Button>
+                  </a>
+                  <Button
+                    onClick={() => window.open(pdfUrl, '_blank')}
+                    variant="outline"
+                  >
+                    Ouvrir dans un nouvel onglet
+                  </Button>
+                </div>
+              </div>
+            </object>
+          </div>
         </div>
       ) : (
         <div className="flex items-center justify-center h-full">
