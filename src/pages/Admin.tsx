@@ -2,7 +2,8 @@ import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { LoginForm } from "@/components/LoginForm";
 import { PDFUploader } from "@/components/PDFUploader";
-import { supabase } from "@/lib/supabase";
+import { PDFList } from "@/components/PDFList";
+import { supabase } from "@/integrations/supabase/client";
 
 const Admin = () => {
   const [isAdmin, setIsAdmin] = useState(false);
@@ -41,6 +42,7 @@ const Admin = () => {
             </Button>
           </div>
           <PDFUploader />
+          <PDFList />
         </div>
       </div>
     );

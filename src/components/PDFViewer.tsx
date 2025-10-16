@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { supabase } from "@/lib/supabase";
+import { supabase } from "@/integrations/supabase/client";
 
 export const PDFViewer = () => {
   const [pdfUrl, setPdfUrl] = useState<string | null>(null);
@@ -34,19 +34,18 @@ export const PDFViewer = () => {
 
         console.log("Found PDF record:", pdfRecord);
 
-        // Get the public URL for the file using the storage API
-        const { data: storageData, error: storageError } = await supabase
+        // Get the public URL for the file
+        const { data: storageData } = supabase
           .storage
           .from('pdfs')
-          .createSignedUrl(pdfRecord.file_path, 60 * 60); // URL valide pendant 1 heure
+          .getPublicUrl(pdfRecord.file_path);
 
-        if (storageError || !storageData?.signedUrl) {
-          console.error("Storage error:", storageError);
-          throw new Error('Could not generate signed URL');
+        if (!storageData.publicUrl) {
+          throw new Error('Could not generate public URL');
         }
 
-        console.log("Generated signed URL:", storageData.signedUrl);
-        setPdfUrl(storageData.signedUrl);
+        console.log("Generated public URL:", storageData.publicUrl);
+        setPdfUrl(storageData.publicUrl);
 
       } catch (error) {
         console.error("Error loading PDF:", error);
