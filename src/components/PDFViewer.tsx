@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
+import { Button } from "@/components/ui/button";
 
 export const PDFViewer = () => {
   const [pdfUrl, setPdfUrl] = useState<string | null>(null);
@@ -68,13 +69,38 @@ export const PDFViewer = () => {
   }
 
   return (
-    <div className="flex flex-col h-screen w-full">
+    <div className="flex flex-col h-screen w-full bg-gray-100">
       {pdfUrl ? (
-        <iframe
-          src={pdfUrl}
-          className="w-full flex-grow border-none"
-          title="PDF Viewer"
-        />
+        <div className="flex flex-col h-full">
+          <div className="bg-white shadow-sm p-4 flex items-center justify-between">
+            <h1 className="text-lg font-semibold text-gray-800">Visualiseur PDF</h1>
+            <div className="flex gap-2">
+              <Button
+                onClick={() => window.open(pdfUrl, '_blank')}
+                variant="outline"
+                size="sm"
+              >
+                Ouvrir dans un nouvel onglet
+              </Button>
+              <Button
+                onClick={() => navigate('/admin')}
+                variant="outline"
+                size="sm"
+              >
+                Retour
+              </Button>
+            </div>
+          </div>
+          <iframe
+            src={`${pdfUrl}#toolbar=1&navpanes=1&scrollbar=1`}
+            className="w-full flex-grow border-none"
+            title="PDF Viewer"
+            onError={(e) => {
+              console.error("Iframe error:", e);
+              setError("Impossible de charger le PDF dans le navigateur. Essayez de l'ouvrir dans un nouvel onglet.");
+            }}
+          />
+        </div>
       ) : (
         <div className="flex items-center justify-center h-full">
           <p className="text-gray-600">Chargement du document...</p>
